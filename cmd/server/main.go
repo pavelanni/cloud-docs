@@ -50,6 +50,12 @@ func main() {
 	r.Get("/", rootHandler)
 	
 	if storageClient != nil {
+		// Serve static assets (CSS, JS, images) without token for easier HTML integration
+		r.Route(cfg.DocsPath+"/static", func(r chi.Router) {
+			r.Get("/*", staticFileHandler(storageClient, cfg.DocsPath+"/static"))
+		})
+		
+		// Serve documents with token authentication (HTML and other content)
 		r.Route(cfg.DocsPath, func(r chi.Router) {
 			r.Use(auth.TokenMiddleware(tokenManager))
 			r.Get("/*", fileHandler(storageClient, cfg.DocsPath))
@@ -96,9 +102,52 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Cloud Docs Server\n")
 }
 
+func staticFileHandler(storageClient *storage.Client, staticPath string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		path := strings.TrimPrefix(r.URL.Path, staticPath+"/")
+		
+		// Only serve files from static/ directory - no index.html fallback
+		if path == "" || strings.HasSuffix(path, "/") {
+			http.Error(w, "Not found", http.StatusNotFound)
+			return
+		}
+		
+		// Prepend "static/" to the path to ensure we're serving from static directory
+		path = "static/" + path
+		
+		ctx, cancel := context.WithTimeout(r.Context(), 30*time.Second)
+		defer cancel()
+		
+		fileInfo, err := storageClient.GetFile(ctx, path)
+		if err != nil {
+			http.Error(w, "Not found", http.StatusNotFound)
+			return
+		}
+		defer fileInfo.Content.Close()
+		
+		// Security headers for static assets (but less restrictive than documents)
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("Content-Type", fileInfo.ContentType)
+		w.Header().Set("Content-Length", fmt.Sprintf("%d", fileInfo.Size))
+		
+		// Public cache for static assets (since they don't contain sensitive data)
+		w.Header().Set("Cache-Control", "public, max-age=3600")
+		
+		if _, err := io.Copy(w, fileInfo.Content); err != nil {
+			log.Printf("Error streaming static file %s: %v", path, err)
+		}
+	}
+}
+
 func fileHandler(storageClient *storage.Client, docsPath string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		path := strings.TrimPrefix(r.URL.Path, docsPath+"/")
+		
+		// Redirect static file requests to the static handler route
+		if strings.HasPrefix(path, "static/") {
+			http.Redirect(w, r, docsPath+"/"+path, http.StatusMovedPermanently)
+			return
+		}
 		
 		// Prevent directory listing - reject paths ending with / or empty paths without explicit file
 		if path == "" {

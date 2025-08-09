@@ -57,3 +57,16 @@ func TestCachePolicyByContentType(t *testing.T) {
 	// Test that HTML files get "private, max-age=60"
 	// Test that CSS/JS/images get "private, max-age=3600"
 }
+
+func TestStaticRouteNoTokenRequired(t *testing.T) {
+	// Test that static files can be accessed without tokens
+	// This is a conceptual test - in practice this would need mock storage
+	
+	// Expected behavior:
+	// - /docs/static/main.css -> returns CSS file without token requirement
+	// - /docs/static/app.js -> returns JS file without token requirement 
+	// - /docs/static/ -> returns 404 (no directory listing)
+	// - /docs/index.html -> still requires token
+	
+	t.Skip("Implementation test - static route serves files without authentication")
+}

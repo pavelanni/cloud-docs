@@ -1,1 +1,41 @@
-<html><body><h1>Test Document 1</h1></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Docs Test - Static Assets Demo</title>
+    <link rel="stylesheet" href="static/main.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="header">
+        <h1>Cloud Docs Test - Static Assets Demo</h1>
+        <p>This document demonstrates the new <span class="highlight">/static</span> route functionality.</p>
+    </div>
+    
+    <div class="content">
+        <h2>Static Assets (No Token Required)</h2>
+        <p>The following assets are served from <strong>/docs/static/</strong> without requiring tokens:</p>
+        <ul>
+            <li>CSS files: <code>static/main.css</code> (loaded above)</li>
+            <li>JavaScript files: <code>static/app.js</code> (loaded below)</li>
+            <li>Images and other assets in static/ directory</li>
+        </ul>
+        
+        <h2>Benefits</h2>
+        <ul>
+            <li>✅ <strong>Simple HTML</strong> - Standard &lt;link&gt; and &lt;script&gt; tags work</li>
+            <li>✅ <strong>Better performance</strong> - Assets cached normally by browsers</li>
+            <li>✅ <strong>Easier integration</strong> - No token management for CSS/JS</li>
+            <li>✅ <strong>Security maintained</strong> - HTML content still requires tokens</li>
+        </ul>
+        
+        <h2>How It Works</h2>
+        <p>URLs like <code>/docs/static/main.css</code> are served publicly, while documents like this HTML file still require valid tokens for access.</p>
+        
+        <p><strong>Page loaded at:</strong> <span id="timestamp"></span></p>
+    </div>
+    
+    <script src="static/app.js"></script>
+</body>
+</html>

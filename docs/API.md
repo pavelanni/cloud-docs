@@ -52,10 +52,41 @@ Root endpoint returning service identification.
 **Status codes**:
 - `200 OK`: Service is running
 
-### Protected endpoints
+### Static asset endpoints (public)
+
+#### GET /docs/static/{path}
+Serve static assets (CSS, JavaScript, images) without authentication for easier HTML integration.
+
+**Parameters**:
+- `path`: Asset path within static directory (e.g., `main.css`, `app.js`, `images/logo.png`)
+
+**Examples**:
+```bash
+# Serve CSS file (no token required)
+GET /docs/static/main.css
+
+# Serve JavaScript file (no token required)  
+GET /docs/static/app.js
+
+# Serve image (no token required)
+GET /docs/static/images/logo.png
+```
+
+**Response headers**:
+```
+Content-Type: text/css (or appropriate MIME type)
+Cache-Control: public, max-age=3600
+X-Content-Type-Options: nosniff
+```
+
+**Status codes**:
+- `200 OK`: Asset served successfully
+- `404 Not Found`: Asset does not exist or directory listing attempted
+
+### Protected endpoints (authentication required)
 
 #### GET /docs/{path}
-Serve document from Google Cloud Storage with authentication.
+Serve documents from Google Cloud Storage with token authentication.
 
 **Parameters**:
 - `path`: Document path (e.g., `index.html`, `folder/doc.html`)
@@ -69,8 +100,8 @@ GET /docs/?token=eyJpZCI6...
 # Serve specific document  
 GET /docs/guide/installation.html?token=eyJpZCI6...
 
-# Serve CSS file
-GET /docs/assets/styles.css?token=eyJpZCI6...
+# Note: Static assets are automatically served from /docs/static/ without tokens
+# HTML can reference them normally: <link rel="stylesheet" href="static/main.css">
 ```
 
 **Response headers**:

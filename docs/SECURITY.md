@@ -3,6 +3,16 @@
 The goal of this project is to be able to host documents and make them accessible via a token (or other auth method)
 while disabling public access, listing, and indexing by search engines.
 
+## Security Architecture
+
+### 🔐 **Two-Tier Access Model**
+The platform uses a two-tier security model that balances security with usability:
+
+1. **Public Static Assets** (`/docs/static/*`): CSS, JavaScript, images served without tokens
+2. **Protected Documents** (`/docs/*`): HTML and other content requires valid tokens
+
+This approach allows standard HTML linking while protecting sensitive content.
+
 ## Implemented Security Measures
 
 ### ✅ **Token Security**
@@ -10,6 +20,7 @@ while disabling public access, listing, and indexing by search engines.
 - **Multiple token sources**: Query parameter, Authorization header, or cookie
 - **Secure validation**: HMAC-SHA256 signatures with timing-safe comparison
 - **Configurable expiration**: Tokens expire automatically
+- **Selective authentication**: Only documents require tokens, static assets are public
 
 ### ✅ **Search Engine Prevention**
 - **X-Robots-Tag**: `noindex, nofollow, noarchive, nosnippet` header on all document responses
@@ -79,5 +90,21 @@ The implementation includes security tests that verify:
 | **MIME sniffing** | X-Content-Type-Options header |
 | **Referrer leakage** | Referrer-Policy headers and iframe attributes |
 | **Container compromise** | Non-root execution, minimal attack surface |
+| **Static asset exposure** | Acceptable risk - CSS/JS typically non-sensitive, enables standard HTML |
 
-This security implementation ensures documents remain private, non-indexable, and accessible only through authenticated tokens while preventing common web security vulnerabilities.
+### Static Asset Security Considerations
+
+The `/docs/static/*` route serves assets without authentication by design:
+
+**✅ Acceptable because:**
+- CSS and JavaScript files typically contain no sensitive business data
+- Enables standard HTML `<link>` and `<script>` tags without token complexity
+- Performance benefit: normal browser caching works
+- Better user experience: no token management for styling/functionality
+
+**⚠️ Considerations:**
+- Don't place sensitive data in CSS comments or JavaScript variables
+- Static assets should be generic styling/functionality, not business logic
+- HTML documents (which contain sensitive content) still require tokens
+
+This security implementation ensures documents remain private, non-indexable, and accessible only through authenticated tokens while preventing common web security vulnerabilities and enabling practical HTML document serving.
