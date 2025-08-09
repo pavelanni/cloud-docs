@@ -280,6 +280,46 @@ substitutions:
 - Comprehensive testing prevents production surprises
 - Performance monitoring is essential from day one
 
+### Phase 8: Static Asset Optimization (Post-MVP Enhancement)
+
+**Objective**: Simplify HTML development by serving CSS/JS assets without token requirements
+
+**Problem Identified**: 
+- Requiring tokens for CSS/JS assets made HTML development complex
+- Standard `<link>` and `<script>` tags didn't work without token rewriting
+- Poor developer experience compared to traditional web development
+
+**Solution Implemented**:
+```go
+// Two-tier routing approach
+r.Route(cfg.DocsPath+"/static", func(r chi.Router) {
+    r.Get("/*", staticFileHandler(storageClient, cfg.DocsPath+"/static"))
+})
+
+r.Route(cfg.DocsPath, func(r chi.Router) {
+    r.Use(auth.TokenMiddleware(tokenManager))
+    r.Get("/*", fileHandler(storageClient, cfg.DocsPath))
+})
+```
+
+**Security Analysis**:
+- CSS/JS files typically contain no sensitive business data
+- HTML documents (containing sensitive content) still require tokens
+- Public caching improves performance for assets
+- Acceptable security trade-off for significant usability improvement
+
+**Benefits Achieved**:
+- Standard HTML `<link rel="stylesheet" href="static/main.css">` works
+- Better browser caching with `Cache-Control: public, max-age=3600`
+- Easier integration and deployment
+- Maintains security for actual document content
+
+**Lessons Learned**:
+- Post-MVP feedback is crucial for practical improvements
+- Security doesn't always mean "lock everything down"
+- Developer experience significantly impacts adoption
+- Two-tier security models can balance security and usability
+
 ## Best practices discovered
 
 ### Code organization

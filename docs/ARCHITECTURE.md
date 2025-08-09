@@ -50,8 +50,9 @@ Cloud Docs is a secure, serverless document hosting platform built on Google Clo
 
 **Responsibilities**:
 - HTTP request handling and routing
-- Token-based authentication middleware
+- Two-tier authentication (token-protected documents, public static assets)
 - Document serving from Google Cloud Storage
+- Static asset serving (CSS, JavaScript, images)
 - Health checks and monitoring
 - Graceful shutdown handling
 
@@ -121,15 +122,22 @@ bucket-name/
 
 ### Authentication flow
 
+**For Documents** (HTML, sensitive content):
 1. **Token Generation**: CLI tool generates signed token with expiration
 2. **URL Construction**: Token included as query parameter or header
 3. **Request Authentication**: Middleware validates signature and expiration
 4. **Access Grant**: Valid tokens allow document access
 
+**For Static Assets** (CSS, JavaScript, images):
+1. **Direct Access**: No token required for `/docs/static/*` routes
+2. **Public Serving**: Assets served with public caching headers
+3. **Security Boundary**: Only non-sensitive styling/functionality assets
+
 ### Security boundaries
 
 - **Public endpoints**: `/health`, `/`, `/ping` (no auth required)
-- **Protected endpoints**: `/docs/*` (token required)
+- **Public static assets**: `/docs/static/*` (no auth required, non-sensitive content)
+- **Protected documents**: `/docs/*` (token required, sensitive content)
 - **Token sources**: Query param, Authorization header, or cookie
 - **Error handling**: Generic messages, no information leakage
 
@@ -172,6 +180,23 @@ graph LR
 1. Auth middleware extracts and validates token
 1. Storage client fetches file from Cloud Storage
 1. File streamed to client with proper headers
+
+### Static asset serving workflow
+
+```mermaid
+graph LR
+    A[Asset Request] --> B[Router]
+    B --> C[Static Handler]
+    C --> D[Storage Client]
+    D --> E[Cloud Storage]
+    E --> F[File Stream]
+    F --> G[HTTP Response with Public Cache]
+```
+
+1. Client requests static asset (CSS/JS/image) without token
+1. Chi router matches `/docs/static/*` pattern
+1. Static handler directly fetches from Cloud Storage
+1. File streamed with public caching headers for performance
 
 ## Deployment architecture
 

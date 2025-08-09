@@ -195,6 +195,46 @@ docker-compose up -d
 docker-compose logs -f
 ```
 
+## Static Asset Organization
+
+The platform uses a two-tier approach for serving content:
+
+### Document Structure
+```
+your-documents/
+├── index.html              # Requires token
+├── docs/                   # Requires token
+│   ├── guide.html
+│   └── reference.html
+└── static/                 # No token required
+    ├── main.css
+    ├── app.js
+    └── images/
+        └── logo.png
+```
+
+### HTML Development
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Static assets work with standard syntax -->
+    <link rel="stylesheet" href="static/main.css">
+    <script src="static/app.js"></script>
+</head>
+<body>
+    <!-- Document content is token-protected -->
+    <h1>Your Protected Content</h1>
+</body>
+</html>
+```
+
+**Benefits**:
+- Standard web development practices work
+- Better browser caching for CSS/JS assets  
+- Easier integration with existing HTML documents
+- Maintained security for sensitive document content
+
 ## Configuration
 
 ### Environment variables
