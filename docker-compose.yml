@@ -1,0 +1,37 @@
+# Docker Compose file for local development and testing
+version: '3.8'
+
+services:
+  cloud-docs:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - BUCKET_NAME=${BUCKET_NAME}
+      - TOKEN_SECRET=${TOKEN_SECRET}
+      - DOCS_PATH=${DOCS_PATH:-/docs}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+# For local testing without GCS, you can add a mock service or use local file serving
+# Uncomment and modify as needed:
+#
+# services:
+#   cloud-docs-local:
+#     build: .
+#     ports:
+#       - "8080:8080"
+#     environment:
+#       - PORT=8080
+#       - TOKEN_SECRET=local-dev-secret
+#       - LOG_LEVEL=debug
+#     volumes:
+#       - ./test-docs:/app/docs:ro
