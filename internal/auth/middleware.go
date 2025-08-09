@@ -24,7 +24,8 @@ func TokenMiddleware(tokenManager *token.Manager) func(http.Handler) http.Handle
 
 			validToken, err := tokenManager.Validate(tokenString)
 			if err != nil {
-				log.Printf("Token validation failed: %v", err)
+				// Don't log token details to avoid exposing tokens in Cloud Run logs
+				log.Printf("Token validation failed for request to %s", r.URL.Path)
 				http.Error(w, "Invalid or expired token", http.StatusUnauthorized)
 				return
 			}

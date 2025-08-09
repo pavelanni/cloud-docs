@@ -156,6 +156,9 @@ func generateIframe(cfg *IframeConfig) (string, error) {
 	var attrs []string
 
 	attrs = append(attrs, fmt.Sprintf(`src="%s"`, documentURL))
+	
+	// Security: Prevent referrer leakage
+	attrs = append(attrs, `referrerpolicy="no-referrer"`)
 
 	if cfg.Width != "" {
 		attrs = append(attrs, fmt.Sprintf(`width="%s"`, cfg.Width))

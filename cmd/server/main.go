@@ -99,8 +99,13 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 func fileHandler(storageClient *storage.Client, docsPath string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		path := strings.TrimPrefix(r.URL.Path, docsPath+"/")
+		
+		// Prevent directory listing - reject paths ending with / or empty paths without explicit file
 		if path == "" {
 			path = "index.html"
+		} else if strings.HasSuffix(path, "/") {
+			http.Error(w, "Directory listing not allowed", http.StatusForbidden)
+			return
 		}
 		
 		ctx, cancel := context.WithTimeout(r.Context(), 30*time.Second)
@@ -118,8 +123,23 @@ func fileHandler(storageClient *storage.Client, docsPath string) http.HandlerFun
 		}
 		defer fileInfo.Content.Close()
 		
+		// Security headers to prevent indexing and improve security
+		w.Header().Set("X-Robots-Tag", "noindex, nofollow, noarchive, nosnippet")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("X-Frame-Options", "SAMEORIGIN")
+		w.Header().Set("Referrer-Policy", "no-referrer")
+		
+		// Content-Type and caching based on file type
 		w.Header().Set("Content-Type", fileInfo.ContentType)
 		w.Header().Set("Content-Length", fmt.Sprintf("%d", fileInfo.Size))
+		
+		// Cache policy based on content type
+		if strings.Contains(fileInfo.ContentType, "text/html") {
+			w.Header().Set("Cache-Control", "private, max-age=60")
+		} else {
+			// CSS, JS, images - longer cache but still private since auth required
+			w.Header().Set("Cache-Control", "private, max-age=3600")
+		}
 		
 		if _, err := io.Copy(w, fileInfo.Content); err != nil {
 			log.Printf("Error streaming file %s: %v", path, err)
