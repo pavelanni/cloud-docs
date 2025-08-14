@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"net/url"
@@ -10,6 +9,7 @@ import (
 
 	"github.com/pavelanni/cloud-docs/internal/config"
 	"github.com/pavelanni/cloud-docs/pkg/token"
+	"github.com/spf13/pflag"
 )
 
 type IframeConfig struct {
@@ -31,28 +31,34 @@ type IframeConfig struct {
 
 func main() {
 	var (
-		baseURL         = flag.String("base-url", "", "Base URL of the Cloud Docs server (e.g., https://my-server.com)")
-		docsPath        = flag.String("docs-path", "", "Docs path prefix (default from DOCS_PATH env or /docs)")
-		documentPath    = flag.String("document", "", "Path to the document (e.g., /folder/doc.html)")
-		tokenString     = flag.String("token", "", "Access token (if not provided, will generate one)")
-		tokenExpires    = flag.String("token-expires", "24h", "Token expiration if generating new token")
-		width           = flag.String("width", "100%", "iframe width")
-		height          = flag.String("height", "600", "iframe height")
-		frameborder     = flag.String("frameborder", "0", "iframe frameborder")
-		scrolling       = flag.String("scrolling", "auto", "iframe scrolling")
-		allowfullscreen = flag.Bool("allowfullscreen", false, "Allow fullscreen")
-		sandbox         = flag.String("sandbox", "", "Sandbox restrictions (e.g., 'allow-scripts allow-same-origin')")
-		title           = flag.String("title", "", "iframe title attribute")
-		class           = flag.String("class", "", "iframe CSS class")
-		id              = flag.String("id", "", "iframe ID attribute")
-		customAttrs     = flag.String("attrs", "", "Custom attributes as key=value,key2=value2")
-		output          = flag.String("output", "", "Output file (default: stdout)")
-		verbose         = flag.Bool("verbose", false, "Verbose output")
+		baseURL         = pflag.StringP("base-url", "u", "", "Base URL of the Cloud Docs server (e.g., https://my-server.com)")
+		docsPath        = pflag.String("docs-path", "", "Docs path prefix (default from DOCS_PATH env or /docs)")
+		documentPath    = pflag.StringP("document", "d", "", "Path to the document (e.g., /folder/doc.html)")
+		tokenString     = pflag.StringP("token", "t", "", "Access token (if not provided, will generate one)")
+		tokenExpires    = pflag.String("token-expires", "24h", "Token expiration if generating new token")
+		width           = pflag.StringP("width", "w", "100%", "iframe width")
+		height          = pflag.String("height", "600", "iframe height")
+		frameborder     = pflag.String("frameborder", "0", "iframe frameborder")
+		scrolling       = pflag.String("scrolling", "auto", "iframe scrolling")
+		allowfullscreen = pflag.Bool("allowfullscreen", false, "Allow fullscreen")
+		sandbox         = pflag.String("sandbox", "", "Sandbox restrictions (e.g., 'allow-scripts allow-same-origin')")
+		title           = pflag.String("title", "", "iframe title attribute")
+		class           = pflag.String("class", "", "iframe CSS class")
+		id              = pflag.String("id", "", "iframe ID attribute")
+		customAttrs     = pflag.String("attrs", "", "Custom attributes as key=value,key2=value2")
+		output          = pflag.StringP("output", "o", "", "Output file (default: stdout)")
+		verbose         = pflag.BoolP("verbose", "v", false, "Verbose output")
+		help            = pflag.BoolP("help", "h", false, "Show help")
 	)
-	flag.Parse()
+	pflag.Parse()
+
+	if *help {
+		pflag.Usage()
+		return
+	}
 
 	if *documentPath == "" {
-		flag.Usage()
+		pflag.Usage()
 		log.Fatal("Document path is required")
 	}
 

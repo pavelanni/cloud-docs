@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"io/fs"
 	"log"
@@ -14,6 +13,7 @@ import (
 
 	"github.com/pavelanni/cloud-docs/internal/config"
 	"github.com/pavelanni/cloud-docs/internal/storage"
+	"github.com/spf13/pflag"
 )
 
 type UploadStats struct {
@@ -60,14 +60,20 @@ type Config struct {
 
 func main() {
 	var (
-		sourceDir  = flag.String("source", ".", "Source directory to upload")
-		bucketName = flag.String("bucket", "", "GCS bucket name (can also use BUCKET_NAME env var)")
-		prefix     = flag.String("prefix", "", "Prefix to add to all uploaded files")
-		exclude    = flag.String("exclude", "", "Comma-separated list of patterns to exclude")
-		dryRun     = flag.Bool("dry-run", false, "Show what would be uploaded without actually uploading")
-		verbose    = flag.Bool("verbose", false, "Verbose output")
+		sourceDir  = pflag.StringP("source", "s", ".", "Source directory to upload")
+		bucketName = pflag.StringP("bucket", "b", "", "GCS bucket name (can also use BUCKET_NAME env var)")
+		prefix     = pflag.StringP("prefix", "p", "", "Prefix to add to all uploaded files")
+		exclude    = pflag.StringP("exclude", "e", "", "Comma-separated list of patterns to exclude")
+		dryRun     = pflag.BoolP("dry-run", "d", false, "Show what would be uploaded without actually uploading")
+		verbose    = pflag.BoolP("verbose", "v", false, "Verbose output")
+		help       = pflag.BoolP("help", "h", false, "Show help")
 	)
-	flag.Parse()
+	pflag.Parse()
+
+	if *help {
+		pflag.Usage()
+		return
+	}
 
 	if *bucketName == "" {
 		cfg := config.Load()

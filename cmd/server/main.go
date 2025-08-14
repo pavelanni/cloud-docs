@@ -175,7 +175,7 @@ func fileHandler(storageClient *storage.Client, docsPath string) http.HandlerFun
 		// Security headers to prevent indexing and improve security
 		w.Header().Set("X-Robots-Tag", "noindex, nofollow, noarchive, nosnippet")
 		w.Header().Set("X-Content-Type-Options", "nosniff")
-		w.Header().Set("X-Frame-Options", "SAMEORIGIN")
+		w.Header().Set("X-Frame-Options", "ALLOWALL")
 		w.Header().Set("Referrer-Policy", "no-referrer")
 		
 		// Content-Type and caching based on file type
