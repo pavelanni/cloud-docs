@@ -1,12 +1,15 @@
 # Cloud Docs - Product Requirements Document
 
-**Version**: 1.0  
-**Date**: August 2025  
-**Status**: Implemented  
+**Version**: 1.0
+**Date**: August 2025
+**Status**: Implemented
 
 ## Executive Summary
 
-Cloud Docs is a serverless document hosting platform that provides secure, token-based access to HTML documents and their associated static assets. The platform enables organizations to host private documentation that can be embedded in learning management systems (LMS) or other applications while maintaining strict access control.
+Cloud Docs is a serverless document hosting platform that provides secure, token-based access
+to HTML documents and their associated static assets. The platform enables organizations
+to host private documentation that can be embedded in learning management systems (LMS)
+or other applications while maintaining strict access control.
 
 ## Problem Statement
 
@@ -27,7 +30,7 @@ Cloud Docs is a serverless document hosting platform that provides secure, token
 
 Cloud Docs provides a two-tier security model:
 1. **Protected documents** (HTML, sensitive content) require authentication tokens
-2. **Public static assets** (CSS, JavaScript, images) are served without tokens for standard web development
+1. **Public static assets** (CSS, JavaScript, images) are served without tokens for standard web development
 
 ### Key Benefits
 - ✅ **Secure by default**: All sensitive content requires valid tokens
@@ -63,7 +66,7 @@ Cloud Docs provides a two-tier security model:
 #### 4. Security Headers
 - **FR-4.1**: `X-Robots-Tag: noindex, nofollow, noarchive, nosnippet` on all documents
 - **FR-4.2**: `X-Content-Type-Options: nosniff` to prevent MIME sniffing attacks
-- **FR-4.3**: `X-Frame-Options: SAMEORIGIN` for clickjacking protection
+- **FR-4.3**: `X-Frame-Options: ALLOWALL` to allow using in an iframe from another host
 - **FR-4.4**: `Referrer-Policy: no-referrer` to prevent information leakage
 
 #### 5. Caching Strategy
@@ -199,7 +202,7 @@ Signature: HMAC-SHA256 of payload using secret key
 
 ### Iframe Tool
 ```bash
-./bin/iframe -document "/path/doc.html" -base-url "https://service-url" 
+./bin/iframe -document "/path/doc.html" -base-url "https://service-url"
              [-width "100%"] [-height "600"] [-sandbox "allow-scripts"]
 ```
 

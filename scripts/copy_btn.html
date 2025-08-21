@@ -1,0 +1,45 @@
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('pre > code').forEach(function(codeBlock) {
+    var button = document.createElement('button');
+    button.innerText = 'Copy';
+    button.className = 'copy-btn';
+    button.type = 'button';
+    button.addEventListener('click', function(e) {
+      var text = codeBlock.innerText;
+      navigator.clipboard.writeText(text).then(function() {
+        button.innerText = 'Copied!';
+        setTimeout(function() { button.innerText = 'Copy'; }, 1500);
+      }, function(err) {
+        console.error('Clipboard error:', err);
+        button.innerText = 'Failed!';
+        setTimeout(function() { button.innerText = 'Copy'; }, 1500);
+        
+        // Fallback: try using document.execCommand
+        try {
+          var textArea = document.createElement('textarea');
+          textArea.value = text;
+          document.body.appendChild(textArea);
+          textArea.select();
+          var successful = document.execCommand('copy');
+          document.body.removeChild(textArea);
+          if (successful) {
+            button.innerText = 'Copied!';
+            setTimeout(function() { button.innerText = 'Copy'; }, 1500);
+          }
+        } catch (fallbackErr) {
+          console.error('Fallback copy failed:', fallbackErr);
+        }
+      });
+      e.preventDefault();
+      e.stopPropagation();
+    });
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    button.style.position = 'absolute';
+    button.style.top = '8px';
+    button.style.right = '8px';
+    pre.appendChild(button);
+  });
+});
+</script>

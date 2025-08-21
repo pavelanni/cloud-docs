@@ -47,11 +47,81 @@ go fmt ./...
 go vet ./...
 ```
 
-## Project structure (planned)
+## Complete workflow for content processing
 
-Based on the requirements, the codebase will likely include:
+The system now includes a comprehensive workflow for converting Markdown documentation to secure, token-protected HTML:
 
-- Web server with middleware for token validation
-- Google Cloud Storage integration for file serving
-- Command-line tools for file uploads and token generation
-- Configuration for Google Cloud Run deployment
+### 1. Content conversion workflow
+
+```bash
+# Generate long-lived token (1 year)
+TOKEN=$(./cmd/token/token -g -e 8760h)
+
+# Convert Markdown to HTML with embedded tokens
+./scripts/convert_all.sh \
+  -s courses/ \
+  -d output/ \
+  -t "$TOKEN" \
+  -c /path/to/static/assets
+
+# Upload processed content to GCS
+./cmd/upload/upload -s output/ -b your-bucket-name
+
+# Generate iframe for embedding
+./cmd/iframe/iframe \
+  -d "/courses/minio-for-admins/network/README.html" \
+  -t "$TOKEN" \
+  -u "https://your-cloud-run-url.com"
+```
+
+### 2. CLI tools (using pflag)
+
+All CLI tools support both long and short flags:
+
+**Token tool:**
+- `-g, --generate`: Generate new token
+- `-v, --validate`: Validate existing token  
+- `-e, --expires`: Token expiration duration
+- `-h, --help`: Show help
+
+**Upload tool:**
+- `-s, --source`: Source directory
+- `-b, --bucket`: GCS bucket name
+- `-p, --prefix`: Upload prefix
+- `-e, --exclude`: Exclude patterns
+- `-d, --dry-run`: Dry run mode
+- `-v, --verbose`: Verbose output
+
+**Iframe tool:**
+- `-d, --document`: Document path
+- `-t, --token`: Access token
+- `-u, --base-url`: Server base URL
+- `-w, --width`: iframe width
+- `-o, --output`: Output file
+
+### 3. Content conversion script
+
+The `scripts/convert_all.sh` script handles:
+- Markdown to HTML conversion using Pandoc
+- Mermaid diagram processing with mermaid-cli
+- Dynamic token embedding via Lua filter
+- Static asset organization
+- Directory structure preservation
+
+Output structure:
+```
+output/
+├── courses/          # Protected content (requires tokens)
+└── static/           # Public assets (CSS, JS, fonts)
+```
+
+## Project structure
+
+The codebase includes:
+
+- **Web server** (`cmd/server/`): Chi-based HTTP server with token validation middleware
+- **CLI tools** (`cmd/`): pflag-based command-line utilities for token, upload, and iframe operations
+- **Internal packages** (`internal/`): Configuration, authentication, and storage abstractions
+- **Token package** (`pkg/token/`): JWT-based token generation and validation
+- **Conversion scripts** (`scripts/`): Pandoc-based Markdown to HTML conversion with Mermaid support
+- **Deployment** (`scripts/deploy.sh`, `cloudbuild.yaml`): Google Cloud Run deployment configuration

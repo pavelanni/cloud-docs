@@ -15,7 +15,7 @@ func main() {
 	var (
 		generate = pflag.BoolP("generate", "g", false, "Generate a new token")
 		validate = pflag.StringP("validate", "v", "", "Validate a token")
-		expires  = pflag.StringP("expires", "e", "24h", "Token expiration duration (e.g., 24h, 7d, 168h)")
+		expires  = pflag.StringP("expires", "e", "24h", "Token expiration duration (e.g., 24h, 168h (1 week), 720h (30 days), 8640h (1 year))")
 		help     = pflag.BoolP("help", "h", false, "Show help")
 	)
 	pflag.Parse()

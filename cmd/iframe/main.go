@@ -182,6 +182,9 @@ func generateIframe(cfg *IframeConfig) (string, error) {
 		attrs = append(attrs, fmt.Sprintf(`scrolling="%s"`, cfg.Scrolling))
 	}
 
+	// Always allow clipboard access for copy functionality
+	attrs = append(attrs, `allow="clipboard-write"`)
+
 	if cfg.Allowfullscreen {
 		attrs = append(attrs, "allowfullscreen")
 	}
