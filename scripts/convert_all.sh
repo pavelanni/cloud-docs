@@ -6,6 +6,7 @@ usage() {
     echo "  -s, --src      Source directory containing Markdown files"
     echo "  -d, --dest     Destination directory for generated HTML"
     echo "  -t, --token    Authentication token for protected assets"
+    echo "  -p, --path     Path to be used as root for all docs (default: /docs)"
     echo "  -c, --css-dir  Directory containing static assets (CSS, JS, etc.)"
     echo "  -h, --help     Show this help message"
     echo ""
@@ -49,6 +50,7 @@ create_temp_with_suffix() {
 SRC_DIR=""
 DEST_DIR=""
 TOKEN=""
+DOCS_PATH="/docs"
 CSS_DIR=""
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -62,6 +64,10 @@ while [[ $# -gt 0 ]]; do
         ;;
     -t | --token)
         TOKEN="$2"
+        shift 2
+        ;;
+    -p | --path)
+        DOCS_PATH="$2"
         shift 2
         ;;
     -c | --css-dir)
@@ -99,7 +105,7 @@ trap 'rm -f "$temp_lua"' EXIT
 sed "s|TOKEN_PLACEHOLDER|$TOKEN|g" "${SCRIPT_DIR}/add_token.lua" > "$temp_lua"
 
 # Pandoc options (no mermaid filter needed)
-PANDOC_OPTS="--standalone --css /docs/static/css/minio_docs.css --include-after-body=${SCRIPT_DIR}/copy_btn.html --lua-filter=$temp_lua"
+PANDOC_OPTS="--standalone --css ${DOCS_PATH}/static/css/minio_docs.css --include-after-body=${SCRIPT_DIR}/copy_btn.html --lua-filter=$temp_lua"
 
 # Create courses output directory
 COURSES_DIR="$DEST_DIR/courses"
