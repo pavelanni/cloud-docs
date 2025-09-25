@@ -8,10 +8,12 @@ usage() {
     echo "  -t, --token    Authentication token for protected assets"
     echo "  -p, --path     Path to be used as root for all docs (default: /docs)"
     echo "  -c, --css-dir  Directory containing static assets (CSS, JS, etc.)"
+    echo "  -n, --css-name Name of the CSS file in css/ subdirectory (default: styles.css)"
     echo "  -h, --help     Show this help message"
     echo ""
     echo "Example:"
     echo "  $0 -s courses/ -d output/ -t 'abc123...' -c /path/to/static"
+    echo "  $0 -s courses/ -d output/ -t 'abc123...' -c /path/to/static -n minio_docs.css"
     exit 1
 }
 
@@ -52,6 +54,7 @@ DEST_DIR=""
 TOKEN=""
 DOCS_PATH="/docs"
 CSS_DIR=""
+CSS_NAME="styles.css"
 while [[ $# -gt 0 ]]; do
     case "$1" in
     -s | --src)
@@ -72,6 +75,10 @@ while [[ $# -gt 0 ]]; do
         ;;
     -c | --css-dir)
         CSS_DIR="$2"
+        shift 2
+        ;;
+    -n | --css-name)
+        CSS_NAME="$2"
         shift 2
         ;;
     -h | --help)
@@ -105,7 +112,8 @@ trap 'rm -f "$temp_lua"' EXIT
 sed "s|TOKEN_PLACEHOLDER|$TOKEN|g" "${SCRIPT_DIR}/add_token.lua" > "$temp_lua"
 
 # Pandoc options (no mermaid filter needed)
-PANDOC_OPTS="--standalone --css ${DOCS_PATH}/static/css/minio_docs.css --include-after-body=${SCRIPT_DIR}/copy_btn.html --lua-filter=$temp_lua"
+# Note: CSS path is relative to where the HTML will be served from the web server
+PANDOC_OPTS="--standalone --css ${DOCS_PATH}/static/css/${CSS_NAME} --include-after-body=${SCRIPT_DIR}/copy_btn.html --lua-filter=$temp_lua"
 
 # Create courses output directory
 COURSES_DIR="$DEST_DIR/courses"
