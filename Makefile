@@ -11,7 +11,7 @@ BUILD_TIME = $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 LDFLAGS = -ldflags "-X main.version=$(VERSION) -X main.commit=$(COMMIT) -X main.buildTime=$(BUILD_TIME)"
 
 # Targets
-TARGETS = server token upload iframe
+TARGETS = server token iframe
 
 # Platforms
 PLATFORMS = \

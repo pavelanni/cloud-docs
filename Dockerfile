@@ -13,10 +13,6 @@ COPY . .
 # Build the server binary
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o server ./cmd/server
 
-# Build the CLI tools
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o upload ./cmd/upload
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o token ./cmd/token
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o iframe ./cmd/iframe
 
 # Final stage - minimal runtime image
 FROM alpine:latest
@@ -31,7 +27,7 @@ RUN addgroup -g 1001 -S appgroup && \
 WORKDIR /app
 
 # Copy binaries from builder
-COPY --from=builder /app/server /app/upload /app/token /app/iframe ./
+COPY --from=builder /app/server ./
 
 # Change ownership to non-root user
 RUN chown -R appuser:appgroup /app

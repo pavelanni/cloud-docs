@@ -4,7 +4,8 @@ This guide covers deploying the Cloud Docs application to Google Cloud Run.
 
 ## Customizing for your organization
 
-Before deploying, you'll need to customize several references to match your organization's naming conventions and repository structure.
+Before deploying, you'll need to customize several references to match your organization's
+naming conventions and repository structure.
 
 ### Required changes
 
@@ -51,7 +52,7 @@ Replace all example project and bucket names:
 
 **Project naming**:
 - Development: `yourcompany-cloud-docs-dev`
-- Staging: `yourcompany-cloud-docs-staging` 
+- Staging: `yourcompany-cloud-docs-staging`
 - Production: `yourcompany-cloud-docs-prod`
 
 **Bucket naming**:
@@ -71,7 +72,7 @@ Replace all example project and bucket names:
 
 ## Quick start
 
-### 1. Set up GCP project
+### Set up GCP project
 
 ```bash
 # Run the setup script (replace with your organization's naming)
@@ -80,14 +81,11 @@ Replace all example project and bucket names:
 # Follow the prompts and note the bucket name created
 ```
 
-### 2. Upload your documents
+### Upload your documents
 
 ```bash
 # Upload your HTML/CSS/JS files (use your customized bucket name)
-./bin/upload -source ./your-docs -bucket yourcompany-cloud-docs-prod-storage
-
-# Or use a custom bucket name
-./bin/upload -source ./your-docs -bucket your-custom-bucket-name
+gcloud storage cp --recursive YOUR_DOCS/* gs://YOUR_BUCKET
 ```
 
 ### 3. Deploy to Cloud Run
@@ -231,7 +229,7 @@ your-documents/
 
 **Benefits**:
 - Standard web development practices work
-- Better browser caching for CSS/JS assets  
+- Better browser caching for CSS/JS assets
 - Easier integration with existing HTML documents
 - Maintained security for sensitive document content
 
@@ -239,13 +237,13 @@ your-documents/
 
 ### Environment variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `PORT` | Server port | `8080` |
-| `BUCKET_NAME` | GCS bucket name | Required |
+| Variable       | Description              | Default  |
+| -------------- | ------------------------ | -------- |
+| `PORT`         | Server port              | `8080`   |
+| `BUCKET_NAME`  | GCS bucket name          | Required |
 | `TOKEN_SECRET` | Secret for token signing | Required |
-| `DOCS_PATH` | URL path prefix | `/docs` |
-| `LOG_LEVEL` | Logging level | `info` |
+| `DOCS_PATH`    | URL path prefix          | `/docs`  |
+| `LOG_LEVEL`    | Logging level            | `info`   |
 
 ### Cloud Run configuration
 

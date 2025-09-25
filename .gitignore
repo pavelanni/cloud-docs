@@ -47,7 +47,6 @@ Thumbs.db
 .env.production.local
 
 # Google Cloud credentials
-*.json
 !**/testdata/*.json
 service-account-key.json
 gcp-*.json
@@ -74,8 +73,5 @@ tmp/
 
 # Local development
 local/
-
-scripts/add_token.lua
-scripts/convert_all.sh
 
 scratchpad/

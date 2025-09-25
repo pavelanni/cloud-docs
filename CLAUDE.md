@@ -11,7 +11,7 @@ Cloud Docs is a Go-based serverless application for hosting documents on Google 
 The project consists of three main components:
 
 1. **Web server**: Go application deployed on Google Cloud Run that serves documents with token-based middleware authentication
-1. **Upload tool**: Command-line utility to upload HTML/CSS/JS files to Google Cloud Storage while preserving directory structure
+1. **Content conversion**: Pandoc-based workflow that converts Markdown files to HTML with embedded tokens
 1. **Token management**: Tools for creating and managing access tokens for document URLs
 
 ## Technology stack
@@ -25,7 +25,32 @@ The project consists of three main components:
 
 ## Development commands
 
-Since this is an early-stage project, common Go development commands apply:
+The project includes a comprehensive Makefile for building and managing the codebase:
+
+```bash
+# Build all CLI tools for all platforms (macOS ARM64, Linux AMD64)
+make build
+
+# Clean and build everything
+make all
+
+# Run tests
+make test
+
+# Format code
+make fmt
+
+# Vet code
+make vet
+
+# Download and tidy dependencies
+make deps
+
+# Show available make targets
+make help
+```
+
+Standard Go commands are also available:
 
 ```bash
 # Initialize and tidy dependencies
@@ -47,6 +72,16 @@ go fmt ./...
 go vet ./...
 ```
 
+### Build system
+
+The Makefile provides multi-platform builds for all CLI tools:
+
+- **Platforms**: macOS ARM64, Linux AMD64
+- **Targets**: server, token, iframe
+- **Output**: `dist/` directory with platform-specific binaries
+- **Version info**: Embeds git version, commit hash, and build time
+- **Archives**: `make archive` creates distributable tar.gz files
+
 ## Complete workflow for content processing
 
 The system now includes a comprehensive workflow for converting Markdown documentation to secure, token-protected HTML:
@@ -64,8 +99,8 @@ TOKEN=$(./cmd/token/token -g -e 8760h)
   -t "$TOKEN" \
   -c /path/to/static/assets
 
-# Upload processed content to GCS
-./cmd/upload/upload -s output/ -b your-bucket-name
+# Upload processed content to GCS using gcloud CLI
+gcloud storage cp -r output/* gs://your-bucket-name/
 
 # Generate iframe for embedding
 ./cmd/iframe/iframe \
@@ -83,14 +118,6 @@ All CLI tools support both long and short flags:
 - `-v, --validate`: Validate existing token  
 - `-e, --expires`: Token expiration duration
 - `-h, --help`: Show help
-
-**Upload tool:**
-- `-s, --source`: Source directory
-- `-b, --bucket`: GCS bucket name
-- `-p, --prefix`: Upload prefix
-- `-e, --exclude`: Exclude patterns
-- `-d, --dry-run`: Dry run mode
-- `-v, --verbose`: Verbose output
 
 **Iframe tool:**
 - `-d, --document`: Document path
@@ -120,7 +147,7 @@ output/
 The codebase includes:
 
 - **Web server** (`cmd/server/`): Chi-based HTTP server with token validation middleware
-- **CLI tools** (`cmd/`): pflag-based command-line utilities for token, upload, and iframe operations
+- **CLI tools** (`cmd/`): pflag-based command-line utilities for token and iframe operations
 - **Internal packages** (`internal/`): Configuration, authentication, and storage abstractions
 - **Token package** (`pkg/token/`): JWT-based token generation and validation
 - **Conversion scripts** (`scripts/`): Pandoc-based Markdown to HTML conversion with Mermaid support

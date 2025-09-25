@@ -39,7 +39,7 @@ func main() {
 			log.Fatalf("Failed to generate token: %v", err)
 		}
 
-		fmt.Printf("Generated token (expires in %v):\n%s\n", duration, tokenString)
+		fmt.Printf("%s\n", tokenString)
 		return
 	}
 

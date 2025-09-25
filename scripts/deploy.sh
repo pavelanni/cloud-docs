@@ -1,6 +1,17 @@
 #!/bin/bash
 
-# Deployment script for Google Cloud Run
+# Primary deployment script using Google Cloud Build
+#
+# WHEN TO USE:
+#   - Production deployments (most reliable)
+#   - When you want Google to handle the build
+#   - When local Docker/Podman is not available
+#
+# PROS: Simple, no local container runtime needed
+# CONS: Slower (uploads source, waits for Cloud Build)
+#
+# Example: ./deploy.sh cloud-docs-469520 my-bucket my-secret us-central1
+
 set -e
 
 # Configuration

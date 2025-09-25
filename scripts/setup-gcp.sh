@@ -40,22 +40,22 @@ fi
 # Set the project
 gcloud config set project $PROJECT_ID
 
-echo ""
-echo "Enabling required APIs..."
+#echo ""
+#echo "Enabling required APIs..."
 
 # Enable required APIs
-gcloud services enable storage.googleapis.com
-gcloud services enable run.googleapis.com
-gcloud services enable cloudbuild.googleapis.com
-gcloud services enable containerregistry.googleapis.com
+#gcloud services enable storage.googleapis.com
+#gcloud services enable run.googleapis.com
+#gcloud services enable cloudbuild.googleapis.com
+#gcloud services enable containerregistry.googleapis.com
 
-echo "APIs enabled successfully!"
-echo ""
+#echo "APIs enabled successfully!"
+#echo ""
 
 # Create Cloud Storage bucket
 echo "Creating Cloud Storage bucket: $BUCKET_NAME"
-if ! gsutil ls gs://$BUCKET_NAME &>/dev/null; then
-    gsutil mb -l $REGION gs://$BUCKET_NAME
+if ! gcloud storage buckets list $BUCKET_NAME > /dev/null; then
+    gcloud storage buckets create $BUCKET_NAME --location=$REGION
     echo "Bucket created successfully!"
 else
     echo "Bucket $BUCKET_NAME already exists."

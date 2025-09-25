@@ -21,7 +21,7 @@ from search engines, while providing an easy way to share documents with authori
 
 ## Architecture
 
-The system consists of four main components:
+The system consists of three main components:
 
 ### Web server
 Go application deployed on Google Cloud Run that serves documents through a Chi router with token validation middleware. Provides two routes:
@@ -33,9 +33,6 @@ Pandoc-based workflow that converts Markdown files to HTML with:
 - Mermaid diagram processing using mermaid-cli
 - Automatic token embedding for protected images and links
 - CSS and static asset organization
-
-### Upload tool
-Command-line utility for uploading processed content to Google Cloud Storage while preserving directory structure and organizing files into `courses/` and `static/` directories.
 
 ### Token management
 Tools for creating and managing access tokens that are embedded in document URLs and validated by the web server middleware.
@@ -110,7 +107,7 @@ Convert your Markdown documentation to HTML with embedded tokens:
 
 # Options:
 #   -s, --src      Source directory containing Markdown files
-#   -d, --dest     Destination directory for generated HTML  
+#   -d, --dest     Destination directory for generated HTML
 #   -t, --token    Authentication token for protected assets
 #   -c, --css-dir  Directory containing static assets (optional)
 ```
@@ -130,18 +127,14 @@ output/
 
 ### 3. Upload to Google Cloud Storage
 
-Upload the processed content preserving directory structure:
+Upload the processed content using the gcloud CLI:
 
 ```bash
 # Upload all content to GCS bucket
-./cmd/upload/upload -s output/ -b your-bucket-name
+gcloud storage cp -r output/* gs://your-bucket-name/
 
-# Options:
-#   -s, --source   Source directory to upload
-#   -b, --bucket   GCS bucket name
-#   -p, --prefix   Prefix to add to uploaded files (optional)
-#   -v, --verbose  Verbose output
-#   -d, --dry-run  Show what would be uploaded without uploading
+# For CI/CD environments, you might want to set up authentication first:
+# gcloud auth activate-service-account --key-file=/path/to/service-account.json
 ```
 
 ### 4. Generate iframe for embedding
@@ -159,7 +152,7 @@ Create iframe elements for embedding in your LMS or website:
 
 # Options:
 #   -d, --document  Path to the document
-#   -t, --token     Access token  
+#   -t, --token     Access token
 #   -u, --base-url  Base URL of Cloud Docs server
 #   -w, --width     iframe width (default: 100%)
 #   -h, --height    iframe height (default: 600)
@@ -179,21 +172,6 @@ Create iframe elements for embedding in your LMS or website:
 
 # Show help
 ./cmd/token/token -h
-```
-
-### Upload tool usage
-
-```bash
-# Upload with custom prefix and exclude patterns
-./cmd/upload/upload \
-  -s content/ \
-  -b my-bucket \
-  -p docs/ \
-  -e "*.tmp,*.log" \
-  -v
-
-# Dry run to see what would be uploaded
-./cmd/upload/upload -s content/ -b my-bucket -d
 ```
 
 ### Iframe generator

@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"io"
 	"mime"
+	"os"
 	"path/filepath"
 	"strings"
 
 	"cloud.google.com/go/storage"
+	"google.golang.org/api/option"
 )
 
 type Client struct {
@@ -27,7 +29,18 @@ func NewClient(ctx context.Context, bucketName string) (*Client, error) {
 		return nil, fmt.Errorf("bucket name cannot be empty")
 	}
 
-	client, err := storage.NewClient(ctx)
+	var client *storage.Client
+	var err error
+
+	// Try to use the same credentials as gcloud CLI
+	// First, check if GOOGLE_APPLICATION_CREDENTIALS is set
+	if credPath := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"); credPath != "" {
+		client, err = storage.NewClient(ctx, option.WithCredentialsFile(credPath))
+	} else {
+		// Use application default credentials, which should pick up gcloud credentials
+		client, err = storage.NewClient(ctx)
+	}
+
 	if err != nil {
 		return nil, fmt.Errorf("failed to create storage client: %w", err)
 	}

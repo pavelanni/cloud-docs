@@ -1,40 +1,40 @@
 steps:
-  # Build the container image
-  - name: 'gcr.io/cloud-builders/docker'
-    args:
-      - 'build'
-      - '-t'
-      - 'gcr.io/$PROJECT_ID/cloud-docs-server:latest'
-      - '.'
-    
-  # Push the container image to Container Registry
-  - name: 'gcr.io/cloud-builders/docker'
-    args:
-      - 'push'
-      - 'gcr.io/$PROJECT_ID/cloud-docs-server:latest'
-    
-  # Deploy container image to Cloud Run
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: gcloud
-    args:
-      - 'run'
-      - 'deploy'
-      - '$_SERVICE_NAME'
-      - '--image'
-      - 'gcr.io/$PROJECT_ID/cloud-docs-server:latest'
-      - '--region'
-      - '$_REGION'
-      - '--platform'
-      - 'managed'
-      - '--allow-unauthenticated'
-      - '--set-env-vars'
-      - 'BUCKET_NAME=$_BUCKET_NAME,TOKEN_SECRET=$_TOKEN_SECRET,DOCS_PATH=$_DOCS_PATH'
+# Build the container image
+- name: 'gcr.io/cloud-builders/docker'
+  args:
+  - 'build'
+  - '-t'
+  - 'gcr.io/$PROJECT_ID/cloud-docs-server:latest'
+  - '.'
+
+# Push the container image to Container Registry
+- name: 'gcr.io/cloud-builders/docker'
+  args:
+  - 'push'
+  - 'gcr.io/$PROJECT_ID/cloud-docs-server:latest'
+
+# Deploy container image to Cloud Run
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: gcloud
+  args:
+  - 'run'
+  - 'deploy'
+  - '$_SERVICE_NAME'
+  - '--image'
+  - 'gcr.io/$PROJECT_ID/cloud-docs-server:latest'
+  - '--region'
+  - '$_REGION'
+  - '--platform'
+  - 'managed'
+  - '--allow-unauthenticated'
+  - '--set-env-vars'
+  - 'BUCKET_NAME=$_BUCKET_NAME,TOKEN_SECRET=$_TOKEN_SECRET,DOCS_PATH=$_DOCS_PATH'
 
 substitutions:
   _SERVICE_NAME: 'cloud-docs-server'
   _REGION: 'us-central1'
-  _BUCKET_NAME: 'yourcompany-cloud-docs-storage'
-  _TOKEN_SECRET: 'replace-with-secure-secret'
+  _BUCKET_NAME: 'your-bucket-name'  # Replace with your bucket
+  _TOKEN_SECRET: 'your-token-secret'  # Replace with your secret (or use Secret Manager)
   _DOCS_PATH: '/docs'
 
 options:
