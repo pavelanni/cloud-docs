@@ -9,9 +9,9 @@ description = "Allowlist for Cloud Docs"
 
 # Common safe patterns
 paths = [
-    ".env.example",
-    "**/*.md",  # Documentation often has examples
-    "**/testdata/**",
+    '''.env\.example''',
+    '''.*\.md$''',  # Documentation often has examples
+    '''.*/testdata/.*''',
 ]
 
 # Safe example values
