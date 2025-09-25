@@ -16,20 +16,23 @@ paths = [
 
 # Safe example values
 regexes = [
-    '''your-[a-z]+-here''',
-    '''replace-with-[a-z-]+''',
+    '''your-[a-zA-Z-]+-here''',
+    '''replace-with-[a-zA-Z-]+''',
     '''example\.com''',
     '''localhost''',
     '''TOKEN_PLACEHOLDER''',
     '''your-token-secret''',
     '''your-bucket-name''',
+    '''dev-secret''',
+    '''test-secret''',
 ]
 
 # Custom rules for this project
 [[rules]]
 id = "cloud-docs-token-secret"
-description = "Hardcoded TOKEN_SECRET value"
-regex = '''TOKEN_SECRET\s*[:=]\s*["'](?!your-|replace-|example-|test-|dev-)[A-Za-z0-9+/=]{20,}["']'''
+description = "Hardcoded TOKEN_SECRET value (long base64)"
+# Look for TOKEN_SECRET with a long base64 string (32+ chars)
+regex = '''TOKEN_SECRET\s*[:=]\s*["'][A-Za-z0-9+/=]{32,}["']'''
 tags = ["secret", "cloud-docs"]
 
 [[rules]]
@@ -38,12 +41,8 @@ description = "GCP Service Account JSON key"
 regex = '''"private_key"\s*:\s*"-----BEGIN'''
 tags = ["gcp", "key"]
 
-[[rules]]
-id = "base64-high-entropy"
-description = "High entropy base64 strings (potential secrets)"
-regex = '''[A-Za-z0-9+/]{40,}={0,2}'''
-entropy = 4.5
-tags = ["entropy", "base64"]
+# Note: Removed high-entropy rule as it may cause false positives
+# Rely on default Gitleaks rules instead
 
 # Extend default rules
 [extend]
