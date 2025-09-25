@@ -1,0 +1,51 @@
+# Gitleaks configuration for Cloud Docs
+# Prevents accidental commits of secrets
+
+title = "Cloud Docs Gitleaks Config"
+
+# Allow examples and documentation with obvious placeholders
+[allowlist]
+description = "Allowlist for Cloud Docs"
+
+# Common safe patterns
+paths = [
+    ".env.example",
+    "**/*.md",  # Documentation often has examples
+    "**/testdata/**",
+]
+
+# Safe example values
+regexes = [
+    '''your-[a-z]+-here''',
+    '''replace-with-[a-z-]+''',
+    '''example\.com''',
+    '''localhost''',
+    '''TOKEN_PLACEHOLDER''',
+    '''your-token-secret''',
+    '''your-bucket-name''',
+]
+
+# Custom rules for this project
+[[rules]]
+id = "cloud-docs-token-secret"
+description = "Hardcoded TOKEN_SECRET value"
+regex = '''TOKEN_SECRET\s*[:=]\s*["'](?!your-|replace-|example-|test-|dev-)[A-Za-z0-9+/=]{20,}["']'''
+tags = ["secret", "cloud-docs"]
+
+[[rules]]
+id = "gcp-service-account-key"
+description = "GCP Service Account JSON key"
+regex = '''"private_key"\s*:\s*"-----BEGIN'''
+tags = ["gcp", "key"]
+
+[[rules]]
+id = "base64-high-entropy"
+description = "High entropy base64 strings (potential secrets)"
+regex = '''[A-Za-z0-9+/]{40,}={0,2}'''
+entropy = 4.5
+tags = ["entropy", "base64"]
+
+# Extend default rules
+[extend]
+# Use Gitleaks default rules as base
+useDefault = true
